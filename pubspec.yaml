@@ -58,6 +58,8 @@ dependencies:
   google_sign_in: 6.3.0
   google_sign_in_android: 6.2.1
   google_sign_in_ios: 5.9.0
+  receive_sharing_intent: ^1.4.5
+  shared_preferences: ^2.2.2
   google_sign_in_platform_interface: 2.5.0
   google_sign_in_web: 0.12.4+4
   http: 1.4.0

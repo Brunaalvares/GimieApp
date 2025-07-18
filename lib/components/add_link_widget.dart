@@ -1,6 +1,7 @@
 import '/backend/api_requests/api_calls.dart';
 import '/backend/backend.dart';
 import '/auth/firebase_auth/auth_util.dart';
+import '/services/sharing_service.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
@@ -37,6 +38,28 @@ class _AddLinkWidgetState extends State<AddLinkWidget> {
     _model.urlaquiTextController ??=
         TextEditingController(text: FFAppState().link);
     _model.urlaquiFocusNode ??= FocusNode();
+    
+    // Escuta por links compartilhados e preenche automaticamente o campo
+    _listenToSharedLinks();
+  }
+  
+  /// Escuta por novos links compartilhados e preenche o campo automaticamente
+  void _listenToSharedLinks() {
+    SharingService.instance.sharedLinkStream.listen(
+      (String sharedUrl) {
+        if (mounted && _model.urlaquiTextController != null) {
+          _model.urlaquiTextController!.text = sharedUrl;
+          if (kDebugMode) {
+            debugPrint('🔗 AddLinkWidget - Campo preenchido com link compartilhado: $sharedUrl');
+          }
+        }
+      },
+      onError: (error) {
+        if (kDebugMode) {
+          debugPrint('❌ Erro ao receber link compartilhado no AddLinkWidget: $error');
+        }
+      },
+    );
   }
 
   @override
