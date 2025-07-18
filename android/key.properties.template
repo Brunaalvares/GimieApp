@@ -1,0 +1,20 @@
+# Arquivo de configuração da keystore para assinatura do app
+# 
+# INSTRUÇÕES:
+# 1. Copie este arquivo para: android/key.properties
+# 2. Substitua os valores abaixo pelas suas informações reais
+# 3. NUNCA commite o arquivo key.properties no Git
+#
+# Para gerar a keystore, execute:
+# keytool -genkey -v -keystore android/upload-keystore.jks -keyalg RSA -keysize 2048 -validity 10000 -alias upload
+
+storePassword=SUA_SENHA_DA_KEYSTORE_AQUI
+keyPassword=SUA_SENHA_DA_KEY_AQUI
+keyAlias=upload
+storeFile=upload-keystore.jks
+
+# Exemplo:
+# storePassword=MinhaSenh@Forte123
+# keyPassword=MinhaSenh@Forte123
+# keyAlias=upload
+# storeFile=upload-keystore.jks
