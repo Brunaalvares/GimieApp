@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "153238418713",
+    "project_id": "gimie-84a75",
+    "storage_bucket": "gimie-84a75.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:153238418713:android:8d4c81e5ef94d5fdbdc188",
+        "android_client_info": {
+          "package_name": "com.mycompany.gimieapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCr6Mz_7cYXcuKjX9C_Hqggm4kI7INaf5w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

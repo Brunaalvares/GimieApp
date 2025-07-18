@@ -1,0 +1,26 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "produtos",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "imageurl",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "nome",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "price",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "linkdoProduto",
+          "order": "DESCENDING"
+        }
+      ]
+    }
+  ]
+}
