@@ -1,8 +1,10 @@
 import '/backend/api_requests/api_calls.dart';
 import '/backend/backend.dart';
+import '/auth/firebase_auth/auth_util.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -191,20 +193,70 @@ class _AddLinkWidgetState extends State<AddLinkWidget> {
 
                     return FFButtonWidget(
                       onPressed: () async {
+                        // Get the URL from the text field instead of hardcoded value
+                        final inputUrl = _model.urlaquiTextController.text.trim();
+                        
+                        if (inputUrl.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Por favor, insira uma URL válida')),
+                          );
+                          return;
+                        }
+
                         _model.apiResult = await SalvarLinkCall.call(
-                          productUrl: 'urlaqui[link]',
+                          productUrl: inputUrl,
                         );
 
-                        if ((_model.apiResult?.succeeded ?? true)) {
+                        if ((_model.apiResult?.succeeded ?? false)) {
+                          // Extract data from API response
+                          final scrapedNome = SalvarLinkCall.nome(_model.apiResult?.jsonBody) ?? '';
+                          final scrapedPriceStr = SalvarLinkCall.price(_model.apiResult?.jsonBody) ?? '0';
+                          final scrapedImageUrl = SalvarLinkCall.imagem(_model.apiResult?.jsonBody) ?? '';
+                          final scrapedProductUrl = SalvarLinkCall.url(_model.apiResult?.jsonBody) ?? inputUrl;
+                          
+                          // Convert price string to double
+                          double scrapedPrice = 0.0;
+                          try {
+                            // Remove currency symbols and parse
+                            final cleanPriceStr = scrapedPriceStr.replaceAll(RegExp(r'[^\d.,]'), '');
+                            scrapedPrice = double.tryParse(cleanPriceStr.replaceAll(',', '.')) ?? 0.0;
+                          } catch (e) {
+                            if (kDebugMode) {
+                              debugPrint('Error parsing price: $e');
+                            }
+                          }
+
+                          // Update FFAppState with scraped data
+                          FFAppState().update(() {
+                            FFAppState().nome = scrapedNome;
+                            FFAppState().price = scrapedPrice;
+                            FFAppState().imageurl = scrapedImageUrl;
+                            FFAppState().linkdoProduto = scrapedProductUrl;
+                          });
+
+                          // Save to Firebase with scraped data and current user UID
                           await ProdutosRecord.collection
                               .doc()
                               .set(createProdutosRecordData(
-                                price: FFAppState().price,
-                                nome: FFAppState().nome,
-                                imageurl: FFAppState().imageurl,
-                                linkdoProduto: FFAppState().linkdoProduto,
-                                uid: '',
+                                price: scrapedPrice,
+                                nome: scrapedNome,
+                                imageurl: scrapedImageUrl,
+                                linkdoProduto: scrapedProductUrl,
+                                uid: currentUserUid, // Use authenticated user UID
                               ));
+                              
+                          // Show success message
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Produto salvo com sucesso!')),
+                          );
+                          
+                          // Close the dialog/modal
+                          Navigator.of(context).pop();
+                        } else {
+                          // Show error message
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Erro ao processar a URL. Tente novamente.')),
+                          );
                         }
 
                         safeSetState(() {});
