@@ -38,7 +38,12 @@ class _LoginWidgetState extends State<LoginWidget>
       vsync: this,
       length: 1,
       initialIndex: 0,
-    )..addListener(() => safeSetState(() {}));
+    )..addListener(() {
+      // Only rebuild if the tab index actually changed
+      if (_model.tabBarController!.indexIsChanging) {
+        safeSetState(() {});
+      }
+    });
 
     _model.emailAddressTextController ??= TextEditingController();
     _model.emailAddressFocusNode ??= FocusNode();

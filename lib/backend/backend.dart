@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import '../auth/firebase_auth/auth_util.dart';
 
 import '../flutter_flow/flutter_flow_util.dart';
@@ -104,7 +105,10 @@ Future<int> queryCollectionCount(
   }
 
   return query.count().get().catchError((err) {
-    print('Error querying $collection: $err');
+    // Log error without exposing sensitive collection details
+    if (kDebugMode) {
+      debugPrint('Database query error occurred');
+    }
   }).then((value) => value.count!);
 }
 
@@ -121,12 +125,20 @@ Stream<List<T>> queryCollection<T>(
     query = query.limit(singleRecord ? 1 : limit);
   }
   return query.snapshots().handleError((err) {
-    print('Error querying $collection: $err');
+    // Log error without exposing sensitive collection details
+    if (kDebugMode) {
+      debugPrint('Database stream error occurred');
+    }
   }).map((s) => s.docs
       .map(
         (d) => safeGet(
           () => recordBuilder(d),
-          (e) => print('Error serializing doc ${d.reference.path}:\n$e'),
+          (e) {
+            // Log serialization error without exposing document paths
+            if (kDebugMode) {
+              debugPrint('Document serialization error occurred');
+            }
+          },
         ),
       )
       .where((d) => d != null)
@@ -150,7 +162,12 @@ Future<List<T>> queryCollectionOnce<T>(
       .map(
         (d) => safeGet(
           () => recordBuilder(d),
-          (e) => print('Error serializing doc ${d.reference.path}:\n$e'),
+          (e) {
+            // Log serialization error without exposing document paths
+            if (kDebugMode) {
+              debugPrint('Document serialization error occurred');
+            }
+          },
         ),
       )
       .where((d) => d != null)
@@ -215,7 +232,12 @@ Future<FFFirestorePage<T>> queryCollectionPage<T>(
       .map(
         (d) => safeGet(
           () => recordBuilder(d),
-          (e) => print('Error serializing doc ${d.reference.path}:\n$e'),
+          (e) {
+            // Log serialization error without exposing document paths
+            if (kDebugMode) {
+              debugPrint('Document serialization error occurred');
+            }
+          },
         ),
       )
       .where((d) => d != null)

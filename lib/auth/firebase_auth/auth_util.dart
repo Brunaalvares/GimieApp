@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '/backend/backend.dart';
@@ -49,10 +50,23 @@ final authenticatedUserStream = FirebaseAuth.instance
       (uid) => uid.isEmpty
           ? Stream.value(null)
           : UsersRecord.getDocument(UsersRecord.collection.doc(uid))
-              .handleError((_) {}),
+              .handleError((error) {
+                // Log error without exposing sensitive information
+                if (kDebugMode) {
+                  debugPrint('User document retrieval error occurred');
+                }
+                // Return null on error to maintain consistent stream behavior
+                return null;
+              }),
     )
     .map((user) {
-  currentUserDocument = user;
+  // Only update currentUserDocument if we have a valid user
+  if (user != null) {
+    currentUserDocument = user;
+  } else if (FirebaseAuth.instance.currentUser == null) {
+    // Clear document if user is definitely signed out
+    currentUserDocument = null;
+  }
 
   return currentUserDocument;
 }).asBroadcastStream();

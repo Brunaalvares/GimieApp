@@ -63,7 +63,10 @@ class FirebaseAuthManager extends AuthManager
   Future deleteUser(BuildContext context) async {
     try {
       if (!loggedIn) {
-        print('Error: delete user attempted with no logged in user!');
+        // Log error without exposing implementation details
+        if (kDebugMode) {
+          debugPrint('Delete user attempted without authentication');
+        }
         return;
       }
       await currentUser?.delete();
@@ -86,7 +89,10 @@ class FirebaseAuthManager extends AuthManager
   }) async {
     try {
       if (!loggedIn) {
-        print('Error: update email attempted with no logged in user!');
+        // Log error without exposing implementation details
+        if (kDebugMode) {
+          debugPrint('Update email attempted without authentication');
+        }
         return;
       }
       await currentUser?.updateEmail(email);
@@ -110,7 +116,10 @@ class FirebaseAuthManager extends AuthManager
   }) async {
     try {
       if (!loggedIn) {
-        print('Error: update password attempted with no logged in user!');
+        // Log error without exposing implementation details
+        if (kDebugMode) {
+          debugPrint('Update password attempted without authentication');
+        }
         return;
       }
       await currentUser?.updatePassword(newPassword);

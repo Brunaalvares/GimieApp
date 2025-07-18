@@ -61,6 +61,8 @@ class _MyAppState extends State<MyApp> {
           .map((e) => getRoute(e))
           .toList();
   late Stream<BaseAuthUser> userStream;
+  late StreamSubscription? userStreamSubscription;
+  late StreamSubscription? jwtStreamSubscription;
 
   final authUserSub = authenticatedUserStream.listen((_) {});
 
@@ -70,11 +72,35 @@ class _MyAppState extends State<MyApp> {
 
     _appStateNotifier = AppStateNotifier.instance;
     _router = createRouter(_appStateNotifier);
-    userStream = gimieAppFirebaseUserStream()
-      ..listen((user) {
-        _appStateNotifier.update(user);
-      });
-    jwtTokenStream.listen((_) {});
+    
+    // Set up authentication streams with proper error handling and sequencing
+    
+    userStream = gimieAppFirebaseUserStream();
+    userStreamSubscription = userStream.listen(
+      (user) {
+        // Only update if we have a valid user or if user is definitively null
+        if (user != null || FirebaseAuth.instance.currentUser == null) {
+          _appStateNotifier.update(user);
+        }
+      },
+      onError: (error) {
+        // Handle auth stream errors gracefully
+        if (kDebugMode) {
+          debugPrint('Authentication stream error occurred');
+        }
+      },
+    );
+    
+    jwtStreamSubscription = jwtTokenStream.listen(
+      (_) {},
+      onError: (error) {
+        // Handle JWT stream errors gracefully
+        if (kDebugMode) {
+          debugPrint('JWT token stream error occurred');
+        }
+      },
+    );
+    
     Future.delayed(
       Duration(milliseconds: 1000),
       () => _appStateNotifier.stopShowingSplashImage(),
@@ -84,6 +110,9 @@ class _MyAppState extends State<MyApp> {
   @override
   void dispose() {
     authUserSub.cancel();
+    // Clean up the new stream subscriptions to prevent memory leaks
+    userStreamSubscription?.cancel();
+    jwtStreamSubscription?.cancel();
 
     super.dispose();
   }
@@ -171,10 +200,16 @@ class _NavBarPageState extends State<NavBarPage> {
       body: _currentPage ?? tabs[_currentPageName],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentIndex,
-        onTap: (i) => safeSetState(() {
-          _currentPage = null;
-          _currentPageName = tabs.keys.toList()[i];
-        }),
+        onTap: (i) {
+          final newPageName = tabs.keys.toList()[i];
+          // Only update state if the page actually changed
+          if (_currentPageName != newPageName) {
+            safeSetState(() {
+              _currentPage = null;
+              _currentPageName = newPageName;
+            });
+          }
+        },
         backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
         selectedItemColor: FlutterFlowTheme.of(context).primary,
         unselectedItemColor: FlutterFlowTheme.of(context).secondaryText,

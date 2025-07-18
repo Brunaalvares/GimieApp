@@ -16,8 +16,23 @@ class FFAppState extends ChangeNotifier {
   Future initializePersistedState() async {}
 
   void update(VoidCallback callback) {
+    // Store previous state for comparison
+    final prevLink = _link;
+    final prevNome = _nome;
+    final prevPrice = _price;
+    final prevImageurl = _imageurl;
+    final prevLinkdoProduto = _linkdoProduto;
+    
     callback();
-    notifyListeners();
+    
+    // Only notify listeners if state actually changed
+    if (_link != prevLink || 
+        _nome != prevNome || 
+        _price != prevPrice || 
+        _imageurl != prevImageurl || 
+        _linkdoProduto != prevLinkdoProduto) {
+      notifyListeners();
+    }
   }
 
   String _link = 'urlaqui[link]';
