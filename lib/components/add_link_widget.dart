@@ -1,5 +1,6 @@
 import '/backend/api_requests/api_calls.dart';
 import '/backend/backend.dart';
+import '/auth/firebase_auth/auth_util.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
@@ -170,83 +171,87 @@ class _AddLinkWidgetState extends State<AddLinkWidget> {
                   validator: _model.urlaquiTextControllerValidator
                       .asValidator(context),
                 ),
-                FutureBuilder<ApiCallResponse>(
-                  future: SalvarLinkCall.call(),
-                  builder: (context, snapshot) {
-                    // Customize what your widget looks like when it's loading.
-                    if (!snapshot.hasData) {
-                      return Center(
-                        child: SizedBox(
-                          width: 50.0,
-                          height: 50.0,
-                          child: CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              FlutterFlowTheme.of(context).primary,
-                            ),
-                          ),
-                        ),
-                      );
+                FFButtonWidget(
+                  onPressed: () async {
+                    final urlInput = _model.urlaquiTextController.text.trim();
+                    if (urlInput.isEmpty) {
+                      showSnackbar(context, 'Informe um link válido');
+                      return;
                     }
-                    final buttonSalvarLinkResponse = snapshot.data!;
 
-                    return FFButtonWidget(
-                      onPressed: () async {
-                        _model.apiResult = await SalvarLinkCall.call(
-                          productUrl: 'urlaqui[link]',
-                        );
+                    final apiResp = await SalvarLinkCall.call(
+                      productUrl: urlInput,
+                    );
 
-                        if ((_model.apiResult?.succeeded ?? true)) {
-                          await ProdutosRecord.collection
-                              .doc()
-                              .set(createProdutosRecordData(
-                                price: FFAppState().price,
-                                nome: FFAppState().nome,
-                                imageurl: FFAppState().imageurl,
-                                linkdoProduto: FFAppState().linkdoProduto,
-                                uid: '',
-                              ));
-                        }
+                    if (!(apiResp.succeeded) || apiResp.jsonBody == null) {
+                      showSnackbar(context, 'Falha ao extrair informações');
+                      return;
+                    }
 
-                        safeSetState(() {});
-                      },
-                      text: FFLocalizations.of(context).getText(
-                        '80xsetnc' /* Salvar */,
-                      ),
-                      options: FFButtonOptions(
-                        width: double.infinity,
-                        height: 48.0,
-                        padding: EdgeInsets.all(8.0),
-                        iconPadding:
-                            EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
-                        color: FlutterFlowTheme.of(context).primary,
-                        textStyle:
-                            FlutterFlowTheme.of(context).titleSmall.override(
-                                  font: GoogleFonts.raleway(
-                                    fontWeight: FlutterFlowTheme.of(context)
-                                        .titleSmall
-                                        .fontWeight,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .titleSmall
-                                        .fontStyle,
-                                  ),
-                                  color: FlutterFlowTheme.of(context).info,
-                                  letterSpacing: 0.0,
-                                  fontWeight: FlutterFlowTheme.of(context)
-                                      .titleSmall
-                                      .fontWeight,
-                                  fontStyle: FlutterFlowTheme.of(context)
-                                      .titleSmall
-                                      .fontStyle,
-                                ),
-                        elevation: 0.0,
-                        borderSide: BorderSide(
-                          color: Colors.transparent,
-                          width: 1.0,
-                        ),
-                        borderRadius: BorderRadius.circular(8.0),
+                    final nome = SalvarLinkCall.nome(apiResp.jsonBody) ?? '';
+                    final precoStr =
+                        SalvarLinkCall.price(apiResp.jsonBody) ?? '';
+                    final imageUrl =
+                        SalvarLinkCall.imagem(apiResp.jsonBody) ?? '';
+                    final productUrl =
+                        SalvarLinkCall.url(apiResp.jsonBody) ?? urlInput;
+
+                    String normalized =
+                        precoStr.replaceAll(RegExp(r'[^0-9,\.]'), '');
+                    normalized =
+                        normalized.replaceAll('.', '').replaceAll(',', '.');
+                    final priceDouble = double.tryParse(normalized) ?? 0.0;
+
+                    await ProdutosRecord.collection.doc().set(
+                      createProdutosRecordData(
+                        price: priceDouble,
+                        nome: nome,
+                        imageurl: imageUrl,
+                        linkdoProduto: productUrl,
+                        uid: currentUserUid,
                       ),
                     );
+
+                    if (mounted) {
+                      Navigator.pop(context);
+                    }
                   },
+                  text: FFLocalizations.of(context).getText(
+                    '80xsetnc' /* Salvar */,
+                  ),
+                  options: FFButtonOptions(
+                    width: double.infinity,
+                    height: 48.0,
+                    padding: EdgeInsets.all(8.0),
+                    iconPadding:
+                        EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
+                    color: FlutterFlowTheme.of(context).primary,
+                    textStyle:
+                        FlutterFlowTheme.of(context).titleSmall.override(
+                          font: GoogleFonts.raleway(
+                            fontWeight: FlutterFlowTheme.of(context)
+                                .titleSmall
+                                .fontWeight,
+                            fontStyle: FlutterFlowTheme.of(context)
+                                .titleSmall
+                                .fontStyle,
+                          ),
+                          color: FlutterFlowTheme.of(context).info,
+                          letterSpacing: 0.0,
+                          fontWeight: FlutterFlowTheme.of(context)
+                              .titleSmall
+                              .fontWeight,
+                          fontStyle: FlutterFlowTheme.of(context)
+                              .titleSmall
+                              .fontStyle,
+                        ),
+                    elevation: 0.0,
+                    borderSide: BorderSide(
+                      color: Colors.transparent,
+                      width: 1.0,
+                    ),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
                 ),
               ].divide(SizedBox(height: 16.0)),
             ),
