@@ -11,20 +11,16 @@ const _kPrivateApiFunctionName = 'ffPrivateApiCall';
 
 class SalvarLinkCall {
   static Future<ApiCallResponse> call({
-    String? productUrl = 'urlaqui[link]',
+    String? productUrl,
   }) async {
-    final ffApiRequestBody = '''
-{
-  "url": "{{productUrl}}"
-}''';
     return ApiManager.instance.makeApiCall(
       callName: 'salvar link',
       apiUrl: 'https://gimieapi.onrender.com/links',
-      callType: ApiCallType.POST,
+      callType: ApiCallType.GET,
       headers: {},
-      params: {},
-      body: ffApiRequestBody,
-      bodyType: BodyType.JSON,
+      params: {
+        'url': productUrl ?? '',
+      },
       returnBody: true,
       encodeBodyUtf8: false,
       decodeUtf8: false,
@@ -34,25 +30,21 @@ class SalvarLinkCall {
     );
   }
 
-  static dynamic name(dynamic response) => getJsonField(
-        response,
-        r'''$''',
-      );
   static String? nome(dynamic response) => castToType<String>(getJsonField(
         response,
-        r'''$[:].nome''',
+        r'''$[0].nome''',
       ));
   static String? price(dynamic response) => castToType<String>(getJsonField(
         response,
-        r'''$[:].preco''',
+        r'''$[0].preco''',
       ));
   static String? imagem(dynamic response) => castToType<String>(getJsonField(
         response,
-        r'''$[:].imagem''',
+        r'''$[0].imagem''',
       ));
   static String? url(dynamic response) => castToType<String>(getJsonField(
         response,
-        r'''$[:].url''',
+        r'''$[0].url''',
       ));
 }
 
