@@ -1,3 +1,4 @@
+import '/auth/firebase_auth/auth_util.dart';
 import '/backend/api_requests/api_calls.dart';
 import '/backend/backend.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
@@ -170,83 +171,107 @@ class _AddLinkWidgetState extends State<AddLinkWidget> {
                   validator: _model.urlaquiTextControllerValidator
                       .asValidator(context),
                 ),
-                FutureBuilder<ApiCallResponse>(
-                  future: SalvarLinkCall.call(),
-                  builder: (context, snapshot) {
-                    // Customize what your widget looks like when it's loading.
-                    if (!snapshot.hasData) {
-                      return Center(
-                        child: SizedBox(
-                          width: 50.0,
-                          height: 50.0,
-                          child: CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              FlutterFlowTheme.of(context).primary,
-                            ),
-                          ),
+                FFButtonWidget(
+                  onPressed: () async {
+                    final inputUrl = _model.urlaquiTextController?.text.trim() ?? '';
+                    if (inputUrl.isEmpty) {
+                      return;
+                    }
+
+                    _model.apiResult = await SalvarLinkCall.call(
+                      productUrl: inputUrl,
+                    );
+
+                    if ((_model.apiResult?.succeeded ?? false) && _model.apiResult?.jsonBody != null) {
+                      final dynamic raw = _model.apiResult!.jsonBody;
+                      dynamic data = raw;
+                      if (raw is List && raw.isNotEmpty) {
+                        data = raw.first;
+                      }
+
+                      String nome = '';
+                      String imagem = '';
+                      String url = inputUrl;
+                      String precoStr = '0';
+
+                      if (data is Map) {
+                        nome = (data['nome'] ?? '') as String;
+                        imagem = (data['imagem'] ?? '') as String;
+                        url = (data['url'] ?? url) as String;
+                        precoStr = (data['preco'] ?? '0').toString();
+                      } else {
+                        final String? n = SalvarLinkCall.nome(raw);
+                        final String? i = SalvarLinkCall.imagem(raw);
+                        final String? u = SalvarLinkCall.url(raw);
+                        final String? p = SalvarLinkCall.price(raw);
+                        nome = n ?? '';
+                        imagem = i ?? '';
+                        url = u ?? url;
+                        precoStr = p ?? '0';
+                      }
+
+                      double parsePriceToDouble(String value) {
+                        final cleaned = value.replaceAll(RegExp(r'[^0-9,\.]'), '');
+                        String normalized = cleaned.replaceAll('.', '').replaceAll(',', '.');
+                        if (normalized.isEmpty) return 0.0;
+                        return double.tryParse(normalized) ?? 0.0;
+                      }
+
+                      final double preco = parsePriceToDouble(precoStr);
+
+                      await ProdutosRecord.collection.doc().set(
+                        createProdutosRecordData(
+                          price: preco,
+                          nome: nome,
+                          imageurl: imagem,
+                          linkdoProduto: url,
+                          uid: currentUserUid,
                         ),
                       );
+
+                      if (Navigator.of(context).canPop()) {
+                        Navigator.of(context).pop();
+                      }
                     }
-                    final buttonSalvarLinkResponse = snapshot.data!;
 
-                    return FFButtonWidget(
-                      onPressed: () async {
-                        _model.apiResult = await SalvarLinkCall.call(
-                          productUrl: 'urlaqui[link]',
-                        );
-
-                        if ((_model.apiResult?.succeeded ?? true)) {
-                          await ProdutosRecord.collection
-                              .doc()
-                              .set(createProdutosRecordData(
-                                price: FFAppState().price,
-                                nome: FFAppState().nome,
-                                imageurl: FFAppState().imageurl,
-                                linkdoProduto: FFAppState().linkdoProduto,
-                                uid: '',
-                              ));
-                        }
-
-                        safeSetState(() {});
-                      },
-                      text: FFLocalizations.of(context).getText(
-                        '80xsetnc' /* Salvar */,
-                      ),
-                      options: FFButtonOptions(
-                        width: double.infinity,
-                        height: 48.0,
-                        padding: EdgeInsets.all(8.0),
-                        iconPadding:
-                            EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
-                        color: FlutterFlowTheme.of(context).primary,
-                        textStyle:
-                            FlutterFlowTheme.of(context).titleSmall.override(
-                                  font: GoogleFonts.raleway(
-                                    fontWeight: FlutterFlowTheme.of(context)
-                                        .titleSmall
-                                        .fontWeight,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .titleSmall
-                                        .fontStyle,
-                                  ),
-                                  color: FlutterFlowTheme.of(context).info,
-                                  letterSpacing: 0.0,
-                                  fontWeight: FlutterFlowTheme.of(context)
-                                      .titleSmall
-                                      .fontWeight,
-                                  fontStyle: FlutterFlowTheme.of(context)
-                                      .titleSmall
-                                      .fontStyle,
-                                ),
-                        elevation: 0.0,
-                        borderSide: BorderSide(
-                          color: Colors.transparent,
-                          width: 1.0,
-                        ),
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                    );
+                    safeSetState(() {});
                   },
+                  text: FFLocalizations.of(context).getText(
+                    '80xsetnc' /* Salvar */,
+                  ),
+                  options: FFButtonOptions(
+                    width: double.infinity,
+                    height: 48.0,
+                    padding: EdgeInsets.all(8.0),
+                    iconPadding:
+                        EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
+                    color: FlutterFlowTheme.of(context).primary,
+                    textStyle:
+                        FlutterFlowTheme.of(context).titleSmall.override(
+                              font: GoogleFonts.raleway(
+                                fontWeight: FlutterFlowTheme.of(context)
+                                    .titleSmall
+                                    .fontWeight,
+                                fontStyle: FlutterFlowTheme.of(context)
+                                    .titleSmall
+                                    .fontStyle,
+                              ),
+                              color: FlutterFlowTheme.of(context).info,
+                              letterSpacing: 0.0,
+                              fontWeight: FlutterFlowTheme.of(context)
+                                  .titleSmall
+                                  .fontWeight,
+                              fontStyle: FlutterFlowTheme.of(context)
+                                  .titleSmall
+                                  .fontStyle,
+                            ),
+                    elevation: 0.0,
+                    borderSide: BorderSide(
+                      color: Colors.transparent,
+                      width: 1.0,
+                    ),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
                 ),
               ].divide(SizedBox(height: 16.0)),
             ),
