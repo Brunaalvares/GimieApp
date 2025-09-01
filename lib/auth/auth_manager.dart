@@ -6,7 +6,14 @@ abstract class AuthManager {
   Future signOut();
   Future deleteUser(BuildContext context);
   Future updateEmail({required String email, required BuildContext context});
-  Future resetPassword({required String email, required BuildContext context});
+  Future<void> resetPassword({
+    required String email,
+    required BuildContext context,
+  });
+  Future updatePassword({
+    required String newPassword,
+    required BuildContext context,
+  });
   Future sendEmailVerification() async => currentUser?.sendEmailVerification();
   Future refreshUser() async => currentUser?.refreshUser();
 }
