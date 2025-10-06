@@ -15,7 +15,7 @@ class SalvarLinkCall {
   }) async {
     final ffApiRequestBody = '''
 {
-  "url": "{{productUrl}}"
+  "url": "${escapeStringForJson(productUrl)}"
 }''';
     return ApiManager.instance.makeApiCall(
       callName: 'salvar link',
@@ -34,26 +34,41 @@ class SalvarLinkCall {
     );
   }
 
-  static dynamic name(dynamic response) => getJsonField(
-        response,
-        r'''$''',
-      );
-  static String? nome(dynamic response) => castToType<String>(getJsonField(
-        response,
-        r'''$[:].nome''',
-      ));
-  static String? price(dynamic response) => castToType<String>(getJsonField(
-        response,
-        r'''$[:].preco''',
-      ));
-  static String? imagem(dynamic response) => castToType<String>(getJsonField(
-        response,
-        r'''$[:].imagem''',
-      ));
-  static String? url(dynamic response) => castToType<String>(getJsonField(
-        response,
-        r'''$[:].url''',
-      ));
+  static dynamic name(dynamic response) => getJsonField(response, r'''$''');
+
+  // Robust extractors: support object ({...}) or array ([{...}]) responses.
+  static String? nome(dynamic response) {
+    final direct = getJsonField(response, r'''$.nome''');
+    if (direct != null && direct.toString().isNotEmpty) {
+      return castToType<String>(direct);
+    }
+    return castToType<String>(getJsonField(response, r'''$[0].nome'''));
+  }
+
+  static String? price(dynamic response) {
+    final direct = getJsonField(response, r'''$.preco''');
+    if (direct != null && direct.toString().isNotEmpty) {
+      return direct.toString();
+    }
+    final fromArray = getJsonField(response, r'''$[0].preco''');
+    return fromArray?.toString();
+  }
+
+  static String? imagem(dynamic response) {
+    final direct = getJsonField(response, r'''$.imagem''');
+    if (direct != null && direct.toString().isNotEmpty) {
+      return castToType<String>(direct);
+    }
+    return castToType<String>(getJsonField(response, r'''$[0].imagem'''));
+  }
+
+  static String? url(dynamic response) {
+    final direct = getJsonField(response, r'''$.url''');
+    if (direct != null && direct.toString().isNotEmpty) {
+      return castToType<String>(direct);
+    }
+    return castToType<String>(getJsonField(response, r'''$[0].url'''));
+  }
 }
 
 class SalvarNaListaCall {

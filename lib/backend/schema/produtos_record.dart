@@ -42,7 +42,15 @@ class ProdutosRecord extends FirestoreRecord {
 
   void _initializeFields() {
     _nome = snapshotData['nome'] as String?;
-    _price = castToType<double>(snapshotData['price']);
+    // Accept numbers or numeric strings from API syncs.
+    final dynamic rawPrice = snapshotData['price'];
+    if (rawPrice is num) {
+      _price = rawPrice.toDouble();
+    } else if (rawPrice is String) {
+      _price = double.tryParse(rawPrice);
+    } else {
+      _price = null;
+    }
     _imageurl = snapshotData['imageurl'] as String?;
     _linkdoProduto = snapshotData['linkdoProduto'] as String?;
     _uid = snapshotData['uid'] as String?;
