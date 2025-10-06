@@ -171,7 +171,7 @@ class _AddLinkWidgetState extends State<AddLinkWidget> {
                       .asValidator(context),
                 ),
                 FutureBuilder<ApiCallResponse>(
-                  future: SalvarLinkCall.call(),
+                  future: Future.value(null),
                   builder: (context, snapshot) {
                     // Customize what your widget looks like when it's loading.
                     if (!snapshot.hasData) {
@@ -187,15 +187,41 @@ class _AddLinkWidgetState extends State<AddLinkWidget> {
                         ),
                       );
                     }
-                    final buttonSalvarLinkResponse = snapshot.data!;
+                    final buttonSalvarLinkResponse = snapshot.data;
 
                     return FFButtonWidget(
                       onPressed: () async {
+                        final inputUrl = _model.urlaquiTextController?.text?.trim();
+                        if (inputUrl == null || inputUrl.isEmpty) {
+                          return;
+                        }
+
                         _model.apiResult = await SalvarLinkCall.call(
-                          productUrl: 'urlaqui[link]',
+                          productUrl: inputUrl,
                         );
 
-                        if ((_model.apiResult?.succeeded ?? true)) {
+                        if (_model.apiResult?.succeeded == true) {
+                          final resp = _model.apiResult!.jsonBody;
+                          final nome = SalvarLinkCall.nome(resp) ?? '';
+                          final precoStr = SalvarLinkCall.price(resp) ?? '';
+                          final imagem = SalvarLinkCall.imagem(resp) ?? '';
+                          final url = SalvarLinkCall.url(resp) ?? inputUrl;
+
+                          final preco = double.tryParse(
+                                precoStr.replaceAll(RegExp(r'[^0-9.,-]'), '')
+                                    .replaceAll('.', '')
+                                    .replaceAll(',', '.'),
+                              ) ??
+                              double.tryParse(precoStr) ??
+                              0.0;
+
+                          FFAppState().update(() {
+                            FFAppState().nome = nome;
+                            FFAppState().price = preco;
+                            FFAppState().imageurl = imagem;
+                            FFAppState().linkdoProduto = url;
+                          });
+
                           await ProdutosRecord.collection
                               .doc()
                               .set(createProdutosRecordData(
