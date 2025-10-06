@@ -170,8 +170,12 @@ class _AddLinkWidgetState extends State<AddLinkWidget> {
                   validator: _model.urlaquiTextControllerValidator
                       .asValidator(context),
                 ),
+                // Render the button immediately; avoid pre-calling the API here
+                // (previously this FutureBuilder awaited an API call, causing UI to stall
+                // or depend on a failing request). We provide an already-completed Future
+                // with a non-null value so the button renders deterministically.
                 FutureBuilder<ApiCallResponse>(
-                  future: Future.value(null),
+                  future: Future.value(ApiCallResponse(null, const {}, 200)),
                   builder: (context, snapshot) {
                     // Customize what your widget looks like when it's loading.
                     if (!snapshot.hasData) {
@@ -187,10 +191,12 @@ class _AddLinkWidgetState extends State<AddLinkWidget> {
                         ),
                       );
                     }
-                    final buttonSalvarLinkResponse = snapshot.data;
+                    final buttonSalvarLinkResponse = snapshot.data; // unused
 
                     return FFButtonWidget(
                       onPressed: () async {
+                        // Use the user-entered URL (previously a constant string was sent),
+                        // then map the API response into app state before saving.
                         final inputUrl = _model.urlaquiTextController?.text?.trim();
                         if (inputUrl == null || inputUrl.isEmpty) {
                           return;
@@ -229,7 +235,9 @@ class _AddLinkWidgetState extends State<AddLinkWidget> {
                                 nome: FFAppState().nome,
                                 imageurl: FFAppState().imageurl,
                                 linkdoProduto: FFAppState().linkdoProduto,
-                                uid: '',
+                                // Ensure products are associated with the logged-in user
+                                // so they appear in the list filtered by uid.
+                                uid: currentUserUid,
                               ));
                         }
 
