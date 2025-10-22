@@ -144,6 +144,33 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           path: AlterarsenhaupWidget.routePath,
           builder: (context, params) => AlterarsenhaupWidget(),
         )
+        ,
+        FFRoute(
+          name: FoldersPageWidget.routeName,
+          path: FoldersPageWidget.routePath,
+          builder: (context, params) => FoldersPageWidget(),
+        ),
+        FFRoute(
+          name: FolderPickerWidget.routeName,
+          path: FolderPickerWidget.routePath,
+          builder: (context, params) => FolderPickerWidget(
+            preselectId: params.getParam<String>('preselectId', ParamType.String),
+          ),
+        ),
+        FFRoute(
+          name: FolderDetailWidget.routeName,
+          path: FolderDetailWidget.routePath,
+          builder: (context, params) => FolderDetailWidget(
+            folderId: params.getParam<String>('folderId', ParamType.String),
+          ),
+        ),
+        FFRoute(
+          name: UserProfileWidget.routeName,
+          path: UserProfileWidget.routePath,
+          builder: (context, params) => UserProfileWidget(
+            userUid: params.getParam<String>('userUid', ParamType.String) ?? '',
+          ),
+        ),
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     );
 

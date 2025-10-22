@@ -13,7 +13,9 @@ export 'add_link_model.dart';
 /// Crie um card que contenha um campo de texto e um botão de salvar e que
 /// apareça quando houver um clique no FloatingActionButton
 class AddLinkWidget extends StatefulWidget {
-  const AddLinkWidget({super.key});
+  const AddLinkWidget({super.key, this.initialFolderId});
+
+  final String? initialFolderId;
 
   @override
   State<AddLinkWidget> createState() => _AddLinkWidgetState();
@@ -36,6 +38,7 @@ class _AddLinkWidgetState extends State<AddLinkWidget> {
     _model.urlaquiTextController ??=
         TextEditingController(text: FFAppState().link);
     _model.urlaquiFocusNode ??= FocusNode();
+    _model.selectedFolderId = widget.initialFolderId;
   }
 
   @override
