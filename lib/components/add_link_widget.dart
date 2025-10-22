@@ -13,7 +13,9 @@ export 'add_link_model.dart';
 /// Crie um card que contenha um campo de texto e um botão de salvar e que
 /// apareça quando houver um clique no FloatingActionButton
 class AddLinkWidget extends StatefulWidget {
-  const AddLinkWidget({super.key});
+  const AddLinkWidget({super.key, this.initialFolderId});
+
+  final String? initialFolderId;
 
   @override
   State<AddLinkWidget> createState() => _AddLinkWidgetState();
@@ -36,6 +38,7 @@ class _AddLinkWidgetState extends State<AddLinkWidget> {
     _model.urlaquiTextController ??=
         TextEditingController(text: FFAppState().link);
     _model.urlaquiFocusNode ??= FocusNode();
+    _model.selectedFolderId = widget.initialFolderId;
   }
 
   @override
@@ -171,6 +174,71 @@ class _AddLinkWidgetState extends State<AddLinkWidget> {
                   validator: _model.urlaquiTextControllerValidator
                       .asValidator(context),
                 ),
+                // Folder selector (required)
+                StreamBuilder<List<FoldersRecord>>(
+                  stream: queryFoldersRecord(
+                    queryBuilder: (q) => q.where('ownerUid', isEqualTo: currentUserUid),
+                  ),
+                  builder: (context, snapshot) {
+                    final folders = snapshot.data ?? const <FoldersRecord>[];
+                    return DropdownButtonFormField<String?>(
+                      value: _model.selectedFolderId,
+                      decoration: InputDecoration(
+                        labelText: 'Pasta (obrigatório)',
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0)),
+                        filled: true,
+                        fillColor: FlutterFlowTheme.of(context).primaryBackground,
+                      ),
+                      items: [
+                        ...folders.map((f) => DropdownMenuItem<String?>(
+                              value: f.reference.id,
+                              child: Text(f.name.isNotEmpty ? f.name : 'Sem nome'),
+                            )),
+                      ],
+                      onChanged: (value) {
+                        _model.selectedFolderId = value;
+                        safeSetState(() {});
+                      },
+                      validator: (val) {
+                        if ((val == null || val.isEmpty) && (_model.createdDefaultFolder == false)) {
+                          return 'Selecione uma pasta';
+                        }
+                        return null;
+                      },
+                    );
+                  },
+                ),
+                // Create default folder if none exists
+                StreamBuilder<List<FoldersRecord>>(
+                  stream: queryFoldersRecord(
+                    queryBuilder: (q) => q.where('ownerUid', isEqualTo: currentUserUid),
+                  ),
+                  builder: (context, snap) {
+                    final folders = snap.data ?? const <FoldersRecord>[];
+                    if (folders.isEmpty) {
+                      return Align(
+                        alignment: Alignment.centerLeft,
+                        child: TextButton(
+                          onPressed: () async {
+                            final doc = await FoldersRecord.collection.add(
+                              createFoldersRecordData(
+                                name: 'Sem categoria',
+                                ownerUid: currentUserUid,
+                                isShared: false,
+                              ),
+                            );
+                            _model.selectedFolderId = doc.id;
+                            _model.createdDefaultFolder = true;
+                            safeSetState(() {});
+                          },
+                          child: const Text('Criar pasta "Sem categoria"'),
+                        ),
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  },
+                ),
+
                 FFButtonWidget(
                   onPressed: () async {
                     final inputUrl = _model.urlaquiTextController?.text.trim() ?? '';
@@ -219,6 +287,27 @@ class _AddLinkWidgetState extends State<AddLinkWidget> {
 
                       final double preco = parsePriceToDouble(precoStr);
 
+                      // Ensure a folder is selected; if not, create/use "Sem categoria"
+                      String? folderId = _model.selectedFolderId;
+                      if (folderId == null || folderId.isEmpty) {
+                        final existing = await queryFoldersRecordOnce(
+                          queryBuilder: (q) => q
+                              .where('ownerUid', isEqualTo: currentUserUid)
+                              .where('name', isEqualTo: 'Sem categoria'),
+                          limit: 1,
+                        );
+                        if (existing.isNotEmpty) {
+                          folderId = existing.first.reference.id;
+                        } else {
+                          final doc = await FoldersRecord.collection.add(createFoldersRecordData(
+                            name: 'Sem categoria',
+                            ownerUid: currentUserUid,
+                            isShared: false,
+                          ));
+                          folderId = doc.id;
+                        }
+                      }
+
                       await ProdutosRecord.collection.doc().set(
                         createProdutosRecordData(
                           price: preco,
@@ -226,6 +315,7 @@ class _AddLinkWidgetState extends State<AddLinkWidget> {
                           imageurl: imagem,
                           linkdoProduto: url,
                           uid: currentUserUid,
+                          folderId: folderId,
                         ),
                       );
 

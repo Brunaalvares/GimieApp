@@ -49,4 +49,10 @@ class FFAppState extends ChangeNotifier {
   set linkdoProduto(String value) {
     _linkdoProduto = value;
   }
+
+  bool _sharePending = false;
+  bool get sharePending => _sharePending;
+  set sharePending(bool value) {
+    _sharePending = value;
+  }
 }

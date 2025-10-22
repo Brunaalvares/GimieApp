@@ -12,6 +12,7 @@ import 'flutter_flow/flutter_flow_util.dart';
 import 'flutter_flow/internationalization.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'index.dart';
+import 'package:flutter/services.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -47,6 +48,7 @@ class _MyAppState extends State<MyApp> {
 
   late AppStateNotifier _appStateNotifier;
   late GoRouter _router;
+  static const MethodChannel _shareChannel = MethodChannel('com.gimieapp/share');
   String getRoute([RouteMatch? routeMatch]) {
     final RouteMatch lastMatch =
         routeMatch ?? _router.routerDelegate.currentConfiguration.last;
@@ -79,6 +81,18 @@ class _MyAppState extends State<MyApp> {
       Duration(milliseconds: 1000),
       () => _appStateNotifier.stopShowingSplashImage(),
     );
+
+    _shareChannel.setMethodCallHandler((call) async {
+      if (call.method == 'shared_text') {
+        final String url = call.arguments as String;
+        FFAppState().update(() => FFAppState().link = url);
+        if (mounted) {
+          appNavigatorKey.currentState?.pushNamed(
+            LoggedInPageWidget.routePath,
+          );
+        }
+      }
+    });
   }
 
   @override
@@ -163,6 +177,7 @@ class _NavBarPageState extends State<NavBarPage> {
       'LoggedInPage': LoggedInPageWidget(),
       'explorar': ExplorarWidget(),
       'Paginadeperfil': PaginadeperfilWidget(),
+      'FoldersPage': FoldersPageWidget(),
     };
     final currentIndex = tabs.keys.toList().indexOf(_currentPageName);
 
