@@ -15,6 +15,7 @@ class AddLinkModel extends FlutterFlowModel<AddLinkWidget> {
 
   // Folder selection
   String? selectedFolderId;
+  bool createdDefaultFolder = false;
 
   @override
   void initState(BuildContext context) {}

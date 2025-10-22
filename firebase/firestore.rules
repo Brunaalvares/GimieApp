@@ -1,18 +1,41 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /users/{document} {
-      allow create: if request.auth.uid == document;
-      allow read: if request.auth.uid == document;
-      allow write: if false;
+    // Users: public profile check
+    match /users/{userId} {
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow read: if resource.data.is_public == true || (request.auth != null && request.auth.uid == userId);
+      allow update: if request.auth != null && request.auth.uid == userId;
       allow delete: if false;
     }
 
-    match /produtos/{document} {
-      allow create: if true;
-      allow read: if true;
-      allow write: if false;
-      allow delete: if false;
+    // Folders: only owner can manage; read allowed for owner and sharedWith
+    match /folders/{folderId} {
+      allow create: if request.auth != null && request.resource.data.ownerUid == request.auth.uid;
+      allow read: if request.auth != null && (resource.data.ownerUid == request.auth.uid || (resource.data.sharedWith != null && request.auth.uid in resource.data.sharedWith));
+      allow update, delete: if request.auth != null && resource.data.ownerUid == request.auth.uid;
+    }
+
+    // Produtos: only owner can write; read allowed if owner or in shared folder
+    match /produtos/{productId} {
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+      allow read: if request.auth != null && (
+        resource.data.uid == request.auth.uid ||
+        (
+          resource.data.folderId != null &&
+          exists(/databases/$(database)/documents/folders/$(resource.data.folderId)) &&
+          get(/databases/$(database)/documents/folders/$(resource.data.folderId)).data.ownerUid == request.auth.uid
+        )
+      );
+      allow update, delete: if request.auth != null && resource.data.uid == request.auth.uid;
+    }
+
+    // Follows: follower can create/delete their edges
+    match /follows/{followId} {
+      allow create: if request.auth != null && request.resource.data.followerUid == request.auth.uid;
+      allow read: if request.auth != null;
+      allow delete: if request.auth != null && resource.data.followerUid == request.auth.uid;
+      allow update: if false;
     }
   }
 }
