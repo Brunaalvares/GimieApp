@@ -8,5 +8,6 @@ export '/logged_in_page/logged_in_page_widget.dart' show LoggedInPageWidget;
 export '/explorar/explorar_widget.dart' show ExplorarWidget;
 export '/folders/folders_page_widget.dart' show FoldersPageWidget;
 export '/folders/folder_picker_widget.dart' show FolderPickerWidget;
+export '/social/user_profile_widget.dart' show UserProfileWidget;
 export '/alteraremail/alteraremail_widget.dart' show AlteraremailWidget;
 export '/alterarsenhaup/alterarsenhaup_widget.dart' show AlterarsenhaupWidget;

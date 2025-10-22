@@ -120,7 +120,14 @@ class _LoggedInPageWidgetState extends State<LoggedInPageWidget> {
                   fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                 ),
           ),
-          actions: [],
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.create_new_folder, color: Colors.white),
+              onPressed: () {
+                context.pushNamed(FoldersPageWidget.routeName);
+              },
+            )
+          ],
           centerTitle: false,
           elevation: 2.0,
         ),
@@ -277,7 +284,10 @@ class _LoggedInPageWidgetState extends State<LoggedInPageWidget> {
                                           ),
                                     ),
                                   ),
-                                  FFButtonWidget(
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: FFButtonWidget(
                                     onPressed: () async {
                                       final url = gridViewProdutosRecord.linkdoProduto;
                                       if (url.isNotEmpty) {
@@ -321,6 +331,42 @@ class _LoggedInPageWidgetState extends State<LoggedInPageWidget> {
                                       ),
                                       borderRadius: BorderRadius.circular(8.0),
                                     ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      InkWell(
+                                        onTap: () async {
+                                          await gridViewProdutosRecord.reference.delete();
+                                        },
+                                        child: Container(
+                                          width: 34,
+                                          height: 34,
+                                          decoration: BoxDecoration(
+                                            color: FlutterFlowTheme.of(context).secondaryBackground,
+                                            borderRadius: BorderRadius.circular(8),
+                                          ),
+                                          child: const Icon(Icons.delete_outline, size: 20),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      InkWell(
+                                        onTap: () async {
+                                          final selected = await context.pushNamed(FolderPickerWidget.routeName);
+                                          if (selected is String?) {
+                                            await gridViewProdutosRecord.reference.update({'folderId': selected});
+                                          }
+                                        },
+                                        child: Container(
+                                          width: 34,
+                                          height: 34,
+                                          decoration: BoxDecoration(
+                                            color: FlutterFlowTheme.of(context).secondaryBackground,
+                                            borderRadius: BorderRadius.circular(8),
+                                          ),
+                                          child: const Icon(Icons.drive_file_move_outline, size: 20),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),

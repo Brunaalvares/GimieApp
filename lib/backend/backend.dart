@@ -324,6 +324,7 @@ Future maybeCreateUser(User user) async {
     uid: user.uid,
     phoneNumber: user.phoneNumber,
     createdTime: getCurrentTimestamp,
+    isPublic: true,
   );
 
   await userRecord.set(userData);

@@ -148,6 +148,23 @@ class _PaginadeperfilWidgetState extends State<PaginadeperfilWidget> {
             ],
           ),
           Padding(
+            padding: EdgeInsetsDirectional.fromSTEB(24.0, 16.0, 24.0, 0.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Perfil público', style: FlutterFlowTheme.of(context).bodyMedium),
+                AuthUserStreamWidget(
+                  builder: (context) => Switch(
+                    value: currentUserDocument?.isPublic ?? true,
+                    onChanged: (val) async {
+                      await currentUserReference?.update({'is_public': val});
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
             padding: EdgeInsetsDirectional.fromSTEB(0.0, 1.0, 0.0, 0.0),
             child: Column(
               mainAxisSize: MainAxisSize.max,
@@ -344,6 +361,79 @@ class _PaginadeperfilWidgetState extends State<PaginadeperfilWidget> {
                               FFLocalizations.of(context).getText(
                                 '1s74gxpc' /* Alterar senha */,
                               ),
+                              style: FlutterFlowTheme.of(context)
+                                  .labelMedium
+                                  .override(
+                                    font: GoogleFonts.plusJakartaSans(
+                                      fontWeight: FontWeight.normal,
+                                      fontStyle: FlutterFlowTheme.of(context)
+                                          .labelMedium
+                                          .fontStyle,
+                                    ),
+                                    color: Color(0xFF57636C),
+                                    fontSize: 14.0,
+                                    letterSpacing: 0.0,
+                                    fontWeight: FontWeight.normal,
+                                    fontStyle: FlutterFlowTheme.of(context)
+                                        .labelMedium
+                                        .fontStyle,
+                                  ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Align(
+                              alignment: AlignmentDirectional(0.9, 0.0),
+                              child: Icon(
+                                Icons.arrow_forward_ios,
+                                color: Color(0xFF57636C),
+                                size: 18.0,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsetsDirectional.fromSTEB(20.0, 12.0, 20.0, 0.0),
+                child: InkWell(
+                  splashColor: Colors.transparent,
+                  focusColor: Colors.transparent,
+                  hoverColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  onTap: () async {
+                    context.pushNamed(FoldersPageWidget.routeName);
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    height: 60.0,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          blurRadius: 5.0,
+                          color: Color(0x3416202A),
+                          offset: Offset(
+                            0.0,
+                            2.0,
+                          ),
+                        )
+                      ],
+                      borderRadius: BorderRadius.circular(40.0),
+                      shape: BoxShape.rectangle,
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          Padding(
+                            padding: EdgeInsetsDirectional.fromSTEB(
+                                12.0, 0.0, 0.0, 0.0),
+                            child: Text(
+                              'Gerenciar pastas',
                               style: FlutterFlowTheme.of(context)
                                   .labelMedium
                                   .override(

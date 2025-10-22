@@ -178,7 +178,7 @@ class _AddLinkWidgetState extends State<AddLinkWidget> {
                   ),
                   builder: (context, snapshot) {
                     final folders = snapshot.data ?? const <FoldersRecord>[];
-                    return DropdownButtonFormField<String>(
+                    return DropdownButtonFormField<String?>(
                       value: _model.selectedFolderId,
                       decoration: InputDecoration(
                         labelText: 'Pasta',
@@ -187,11 +187,11 @@ class _AddLinkWidgetState extends State<AddLinkWidget> {
                         fillColor: FlutterFlowTheme.of(context).primaryBackground,
                       ),
                       items: [
-                        const DropdownMenuItem<String>(
+                        const DropdownMenuItem<String?>(
                           value: null,
                           child: Text('Sem pasta'),
                         ),
-                        ...folders.map((f) => DropdownMenuItem<String>(
+                        ...folders.map((f) => DropdownMenuItem<String?>(
                               value: f.reference.id,
                               child: Text(f.name.isNotEmpty ? f.name : 'Sem nome'),
                             )),
