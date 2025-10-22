@@ -40,12 +40,18 @@ class ProdutosRecord extends FirestoreRecord {
   String get uid => _uid ?? '';
   bool hasUid() => _uid != null;
 
+  // "folderId" field (reference to folders collection).
+  String? _folderId;
+  String get folderId => _folderId ?? '';
+  bool hasFolderId() => _folderId != null;
+
   void _initializeFields() {
     _nome = snapshotData['nome'] as String?;
     _price = castToType<double>(snapshotData['price']);
     _imageurl = snapshotData['imageurl'] as String?;
     _linkdoProduto = snapshotData['linkdoProduto'] as String?;
     _uid = snapshotData['uid'] as String?;
+    _folderId = snapshotData['folderId'] as String?;
   }
 
   static CollectionReference get collection =>
@@ -88,6 +94,7 @@ Map<String, dynamic> createProdutosRecordData({
   String? imageurl,
   String? linkdoProduto,
   String? uid,
+  String? folderId,
 }) {
   final firestoreData = mapToFirestore(
     <String, dynamic>{
@@ -96,6 +103,7 @@ Map<String, dynamic> createProdutosRecordData({
       'imageurl': imageurl,
       'linkdoProduto': linkdoProduto,
       'uid': uid,
+      'folderId': folderId,
     }.withoutNulls,
   );
 

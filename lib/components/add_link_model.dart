@@ -13,6 +13,9 @@ class AddLinkModel extends FlutterFlowModel<AddLinkWidget> {
   // Stores action output result for [Backend Call - API (salvar link)] action in Button widget.
   ApiCallResponse? apiResult;
 
+  // Folder selection
+  String? selectedFolderId;
+
   @override
   void initState(BuildContext context) {}
 

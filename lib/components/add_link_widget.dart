@@ -171,6 +171,39 @@ class _AddLinkWidgetState extends State<AddLinkWidget> {
                   validator: _model.urlaquiTextControllerValidator
                       .asValidator(context),
                 ),
+                // Folder selector
+                StreamBuilder<List<FoldersRecord>>(
+                  stream: queryFoldersRecord(
+                    queryBuilder: (q) => q.where('ownerUid', isEqualTo: currentUserUid),
+                  ),
+                  builder: (context, snapshot) {
+                    final folders = snapshot.data ?? const <FoldersRecord>[];
+                    return DropdownButtonFormField<String>(
+                      value: _model.selectedFolderId,
+                      decoration: InputDecoration(
+                        labelText: 'Pasta',
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0)),
+                        filled: true,
+                        fillColor: FlutterFlowTheme.of(context).primaryBackground,
+                      ),
+                      items: [
+                        const DropdownMenuItem<String>(
+                          value: null,
+                          child: Text('Sem pasta'),
+                        ),
+                        ...folders.map((f) => DropdownMenuItem<String>(
+                              value: f.reference.id,
+                              child: Text(f.name.isNotEmpty ? f.name : 'Sem nome'),
+                            )),
+                      ],
+                      onChanged: (value) {
+                        _model.selectedFolderId = value;
+                        safeSetState(() {});
+                      },
+                    );
+                  },
+                ),
+
                 FFButtonWidget(
                   onPressed: () async {
                     final inputUrl = _model.urlaquiTextController?.text.trim() ?? '';
@@ -226,6 +259,7 @@ class _AddLinkWidgetState extends State<AddLinkWidget> {
                           imageurl: imagem,
                           linkdoProduto: url,
                           uid: currentUserUid,
+                          folderId: _model.selectedFolderId,
                         ),
                       );
 
