@@ -15,25 +15,36 @@ class ProdutosRecord extends FirestoreRecord {
     _initializeFields();
   }
 
-  // "nome" field.
-  String? _nome;
-  String get nome => _nome ?? '';
-  bool hasNome() => _nome != null;
+  // "title" field.
+  String? _title;
+  String get title => _title ?? '';
+  bool hasTitle() => _title != null;
+  String get nome => title;
+  bool hasNome() => hasTitle();
 
   // "price" field.
   double? _price;
   double get price => _price ?? 0.0;
   bool hasPrice() => _price != null;
 
-  // "imageurl" field.
-  String? _imageurl;
-  String get imageurl => _imageurl ?? '';
-  bool hasImageurl() => _imageurl != null;
+  // "imageUrl" field.
+  String? _imageUrl;
+  String get imageUrl => _imageUrl ?? '';
+  bool hasImageUrl() => _imageUrl != null;
+  String get imageurl => imageUrl;
+  bool hasImageurl() => hasImageUrl();
 
-  // "linkdoProduto" field.
-  String? _linkdoProduto;
-  String get linkdoProduto => _linkdoProduto ?? '';
-  bool hasLinkdoProduto() => _linkdoProduto != null;
+  // "productUrl" field.
+  String? _productUrl;
+  String get productUrl => _productUrl ?? '';
+  bool hasProductUrl() => _productUrl != null;
+  String get linkdoProduto => productUrl;
+  bool hasLinkdoProduto() => hasProductUrl();
+
+  // "createdAt" field.
+  DateTime? _createdAt;
+  DateTime? get createdAt => _createdAt;
+  bool hasCreatedAt() => _createdAt != null;
 
   // "uid" field.
   String? _uid;
@@ -41,15 +52,16 @@ class ProdutosRecord extends FirestoreRecord {
   bool hasUid() => _uid != null;
 
   void _initializeFields() {
-    _nome = snapshotData['nome'] as String?;
+    _title = snapshotData['title'] as String?;
     _price = castToType<double>(snapshotData['price']);
-    _imageurl = snapshotData['imageurl'] as String?;
-    _linkdoProduto = snapshotData['linkdoProduto'] as String?;
+    _imageUrl = snapshotData['imageUrl'] as String?;
+    _productUrl = snapshotData['productUrl'] as String?;
+    _createdAt = snapshotData['createdAt'] as DateTime?;
     _uid = snapshotData['uid'] as String?;
   }
 
   static CollectionReference get collection =>
-      FirebaseFirestore.instance.collection('produtos');
+      FirebaseFirestore.instance.collection('links');
 
   static Stream<ProdutosRecord> getDocument(DocumentReference ref) =>
       ref.snapshots().map((s) => ProdutosRecord.fromSnapshot(s));
@@ -83,18 +95,20 @@ class ProdutosRecord extends FirestoreRecord {
 }
 
 Map<String, dynamic> createProdutosRecordData({
-  String? nome,
+  String? title,
   double? price,
-  String? imageurl,
-  String? linkdoProduto,
+  String? imageUrl,
+  String? productUrl,
   String? uid,
+  dynamic createdAt,
 }) {
   final firestoreData = mapToFirestore(
     <String, dynamic>{
-      'nome': nome,
+      'title': title,
       'price': price,
-      'imageurl': imageurl,
-      'linkdoProduto': linkdoProduto,
+      'imageUrl': imageUrl,
+      'productUrl': productUrl,
+      'createdAt': createdAt,
       'uid': uid,
     }.withoutNulls,
   );
@@ -107,16 +121,24 @@ class ProdutosRecordDocumentEquality implements Equality<ProdutosRecord> {
 
   @override
   bool equals(ProdutosRecord? e1, ProdutosRecord? e2) {
-    return e1?.nome == e2?.nome &&
+    return e1?.title == e2?.title &&
         e1?.price == e2?.price &&
-        e1?.imageurl == e2?.imageurl &&
-        e1?.linkdoProduto == e2?.linkdoProduto &&
+        e1?.imageUrl == e2?.imageUrl &&
+        e1?.productUrl == e2?.productUrl &&
+        e1?.createdAt == e2?.createdAt &&
         e1?.uid == e2?.uid;
   }
 
   @override
   int hash(ProdutosRecord? e) => const ListEquality()
-      .hash([e?.nome, e?.price, e?.imageurl, e?.linkdoProduto, e?.uid]);
+      .hash([
+        e?.title,
+        e?.price,
+        e?.imageUrl,
+        e?.productUrl,
+        e?.createdAt,
+        e?.uid
+      ]);
 
   @override
   bool isValidKey(Object? o) => o is ProdutosRecord;

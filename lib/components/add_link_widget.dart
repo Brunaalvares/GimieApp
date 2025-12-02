@@ -1,6 +1,5 @@
 import '/auth/firebase_auth/auth_util.dart';
-import '/backend/api_requests/api_calls.dart';
-import '/backend/backend.dart';
+import '/backend/link_ingestion_service.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
@@ -21,6 +20,7 @@ class AddLinkWidget extends StatefulWidget {
 
 class _AddLinkWidgetState extends State<AddLinkWidget> {
   late AddLinkModel _model;
+  bool _isSubmitting = false;
 
   @override
   void setState(VoidCallback callback) {
@@ -48,6 +48,57 @@ class _AddLinkWidgetState extends State<AddLinkWidget> {
   @override
   Widget build(BuildContext context) {
     context.watch<FFAppState>();
+
+    Future<void> handleSave() async {
+      final inputUrl = _model.urlaquiTextController?.text.trim() ?? '';
+      if (inputUrl.isEmpty) {
+        showSnackbar(
+          context,
+          'Cole um link válido antes de salvar.',
+        );
+        return;
+      }
+      safeSetState(() => _isSubmitting = true);
+      try {
+        final result = await LinkIngestionService.fetchMetadata(inputUrl);
+        _model.apiResult = result.response;
+
+        FFAppState().update(() {
+          FFAppState().nome = result.metadata.title;
+          FFAppState().imageurl = result.metadata.imageUrl;
+          FFAppState().price = result.metadata.price;
+          FFAppState().linkdoProduto = result.metadata.productUrl;
+          FFAppState().link = result.metadata.sourceUrl;
+        });
+
+        if (currentUserUid.isEmpty) {
+          throw Exception('Usuário não autenticado');
+        }
+
+        await LinkIngestionService.saveMetadata(
+          uid: currentUserUid,
+          metadata: result.metadata,
+        );
+
+        showSnackbar(
+          context,
+          'Produto salvo com sucesso!',
+        );
+
+        if (Navigator.of(context).canPop()) {
+          Navigator.of(context).pop();
+        }
+      } catch (error) {
+        showSnackbar(
+          context,
+          'Não foi possível salvar o link. Verifique a URL e tente novamente.',
+        );
+      } finally {
+        if (mounted) {
+          safeSetState(() => _isSubmitting = false);
+        }
+      }
+    }
 
     return Container(
       decoration: BoxDecoration(
@@ -172,70 +223,7 @@ class _AddLinkWidgetState extends State<AddLinkWidget> {
                       .asValidator(context),
                 ),
                 FFButtonWidget(
-                  onPressed: () async {
-                    final inputUrl = _model.urlaquiTextController?.text.trim() ?? '';
-                    if (inputUrl.isEmpty) {
-                      return;
-                    }
-
-                    _model.apiResult = await SalvarLinkCall.call(
-                      productUrl: inputUrl,
-                    );
-
-                    if ((_model.apiResult?.succeeded ?? false) && _model.apiResult?.jsonBody != null) {
-                      final dynamic raw = _model.apiResult!.jsonBody;
-                      dynamic data = raw;
-                      if (raw is List && raw.isNotEmpty) {
-                        data = raw.first;
-                      }
-
-                      String nome = '';
-                      String imagem = '';
-                      String url = inputUrl;
-                      String precoStr = '0';
-
-                      if (data is Map) {
-                        nome = (data['nome'] ?? '') as String;
-                        imagem = (data['imagem'] ?? '') as String;
-                        url = (data['url'] ?? url) as String;
-                        precoStr = (data['preco'] ?? '0').toString();
-                      } else {
-                        final String? n = SalvarLinkCall.nome(raw);
-                        final String? i = SalvarLinkCall.imagem(raw);
-                        final String? u = SalvarLinkCall.url(raw);
-                        final String? p = SalvarLinkCall.price(raw);
-                        nome = n ?? '';
-                        imagem = i ?? '';
-                        url = u ?? url;
-                        precoStr = p ?? '0';
-                      }
-
-                      double parsePriceToDouble(String value) {
-                        final cleaned = value.replaceAll(RegExp(r'[^0-9,\.]'), '');
-                        String normalized = cleaned.replaceAll('.', '').replaceAll(',', '.');
-                        if (normalized.isEmpty) return 0.0;
-                        return double.tryParse(normalized) ?? 0.0;
-                      }
-
-                      final double preco = parsePriceToDouble(precoStr);
-
-                      await ProdutosRecord.collection.doc().set(
-                        createProdutosRecordData(
-                          price: preco,
-                          nome: nome,
-                          imageurl: imagem,
-                          linkdoProduto: url,
-                          uid: currentUserUid,
-                        ),
-                      );
-
-                      if (Navigator.of(context).canPop()) {
-                        Navigator.of(context).pop();
-                      }
-                    }
-
-                    safeSetState(() {});
-                  },
+                  onPressed: _isSubmitting ? null : handleSave,
                   text: FFLocalizations.of(context).getText(
                     '80xsetnc' /* Salvar */,
                   ),
