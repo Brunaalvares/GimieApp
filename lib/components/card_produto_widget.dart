@@ -55,6 +55,15 @@ class _CardProdutoWidgetState extends State<CardProdutoWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final localization = FFLocalizations.of(context);
+    final currencyLocale =
+        localization.languageCode.startsWith('pt') ? 'pt_BR' : 'en_US';
+    final priceValue = widget.productPrice ?? 0.0;
+    final formattedPrice =
+        NumberFormat.simpleCurrency(locale: currencyLocale).format(priceValue);
+    final productUrl = widget.productUrl ?? '';
+    final canOpenProductUrl = productUrl.isNotEmpty;
+
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -115,9 +124,7 @@ class _CardProdutoWidgetState extends State<CardProdutoWidget> {
             Padding(
               padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 8.0),
               child: Text(
-                FFLocalizations.of(context).getText(
-                  '3mxdqx0s' /*  299,99 */,
-                ),
+                formattedPrice,
                 style: FlutterFlowTheme.of(context).bodyLarge.override(
                       font: GoogleFonts.roboto(
                         fontWeight: FontWeight.w500,
@@ -125,7 +132,7 @@ class _CardProdutoWidgetState extends State<CardProdutoWidget> {
                             FlutterFlowTheme.of(context).bodyLarge.fontStyle,
                       ),
                       color: FlutterFlowTheme.of(context).primary,
-                      fontSize: widget.productPrice,
+                      fontSize: 14.0,
                       letterSpacing: 0.0,
                       fontWeight: FontWeight.w500,
                       fontStyle:
@@ -134,10 +141,15 @@ class _CardProdutoWidgetState extends State<CardProdutoWidget> {
               ),
             ),
             FFButtonWidget(
-              onPressed: () async {
-                await launchURL(widget.productUrl!);
-              },
-              text: widget.productUrl!,
+              onPressed: canOpenProductUrl
+                  ? () async {
+                      await launchURL(productUrl);
+                    }
+                  : null,
+              text: valueOrDefault<String>(
+                productUrl,
+                'Link indisponível',
+              ),
               options: FFButtonOptions(
                 width: double.infinity,
                 height: 36.0,
