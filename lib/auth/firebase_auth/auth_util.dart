@@ -15,7 +15,8 @@ FirebaseAuthManager get authManager => _authManager;
 String get currentUserEmail =>
     currentUserDocument?.email ?? currentUser?.email ?? '';
 
-String get currentUserUid => currentUser?.uid ?? '';
+String get currentUserUid =>
+    currentUser?.uid ?? FirebaseAuth.instance.currentUser?.uid ?? '';
 
 String get currentUserDisplayName =>
     currentUserDocument?.displayName ?? currentUser?.displayName ?? '';
