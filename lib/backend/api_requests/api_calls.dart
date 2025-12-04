@@ -13,17 +13,16 @@ class SalvarLinkCall {
   static Future<ApiCallResponse> call({
     String? productUrl = 'urlaqui[link]',
   }) async {
-    final ffApiRequestBody = '''
-{
-  "url": "{{productUrl}}"
-}''';
+    final payload = json.encode({
+      'url': productUrl?.trim() ?? '',
+    });
     return ApiManager.instance.makeApiCall(
       callName: 'salvar link',
       apiUrl: 'https://gimieapi.onrender.com/links',
       callType: ApiCallType.POST,
       headers: {},
       params: {},
-      body: ffApiRequestBody,
+      body: payload,
       bodyType: BodyType.JSON,
       returnBody: true,
       encodeBodyUtf8: false,
@@ -34,26 +33,52 @@ class SalvarLinkCall {
     );
   }
 
-  static dynamic name(dynamic response) => getJsonField(
-        response,
-        r'''$''',
+  static Map<String, dynamic>? _extractProduct(dynamic response) {
+    if (response == null) {
+      return null;
+    }
+    final product = _castToMap(response);
+    if (product != null) {
+      return product;
+    }
+    if (response is List && response.isNotEmpty) {
+      return _castToMap(response.first);
+    }
+    return null;
+  }
+
+  static Map<String, dynamic>? _castToMap(dynamic value) {
+    if (value is Map<String, dynamic>) {
+      return value;
+    }
+    if (value is Map) {
+      return value.map(
+        (key, val) => MapEntry(key.toString(), val),
       );
-  static String? nome(dynamic response) => castToType<String>(getJsonField(
-        response,
-        r'''$[:].nome''',
-      ));
-  static String? price(dynamic response) => castToType<String>(getJsonField(
-        response,
-        r'''$[:].preco''',
-      ));
-  static String? imagem(dynamic response) => castToType<String>(getJsonField(
-        response,
-        r'''$[:].imagem''',
-      ));
-  static String? url(dynamic response) => castToType<String>(getJsonField(
-        response,
-        r'''$[:].url''',
-      ));
+    }
+    return null;
+  }
+
+  static String? _stringField(dynamic response, String key) {
+    final product = _extractProduct(response);
+    if (product == null || !product.containsKey(key)) {
+      return null;
+    }
+    final value = product[key];
+    if (value == null) {
+      return null;
+    }
+    if (value is String) {
+      return value;
+    }
+    return value.toString();
+  }
+
+  static dynamic name(dynamic response) => _extractProduct(response);
+  static String? nome(dynamic response) => _stringField(response, 'nome');
+  static String? price(dynamic response) => _stringField(response, 'preco');
+  static String? imagem(dynamic response) => _stringField(response, 'imagem');
+  static String? url(dynamic response) => _stringField(response, 'url');
 }
 
 class SalvarNaListaCall {
