@@ -210,6 +210,37 @@ class _LoggedInPageWidgetState extends State<LoggedInPageWidget> {
                                       width: double.infinity,
                                       height: 120.0,
                                       fit: BoxFit.cover,
+                                      placeholder: (context, _) => Container(
+                                        width: double.infinity,
+                                        height: 120.0,
+                                        color: FlutterFlowTheme.of(context)
+                                            .alternate,
+                                        alignment: Alignment.center,
+                                        child: SizedBox(
+                                          width: 24.0,
+                                          height: 24.0,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2.0,
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                              FlutterFlowTheme.of(context)
+                                                  .primary,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      errorWidget: (context, _, __) => Container(
+                                        width: double.infinity,
+                                        height: 120.0,
+                                        color: FlutterFlowTheme.of(context)
+                                            .alternate,
+                                        alignment: Alignment.center,
+                                        child: Icon(
+                                          Icons.image_not_supported,
+                                          color: FlutterFlowTheme.of(context)
+                                              .secondaryText,
+                                        ),
+                                      ),
                                     ),
                                   ),
                                   Padding(
