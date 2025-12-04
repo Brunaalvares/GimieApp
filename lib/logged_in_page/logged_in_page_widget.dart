@@ -135,10 +135,12 @@ class _LoggedInPageWidgetState extends State<LoggedInPageWidget> {
                       EdgeInsetsDirectional.fromSTEB(16.0, 16.0, 16.0, 100.0),
                   child: StreamBuilder<List<ProdutosRecord>>(
                     stream: queryProdutosRecord(
-                      queryBuilder: (produtosRecord) => produtosRecord.where(
-                        'uid',
-                        isEqualTo: currentUserUid,
-                      ),
+                      queryBuilder: (produtosRecord) => produtosRecord
+                          .where(
+                            'uid',
+                            isEqualTo: currentUserUid,
+                          )
+                          .orderBy('createdAt', descending: true),
                     ),
                     builder: (context, snapshot) {
                       // Customize what your widget looks like when it's loading.
@@ -204,7 +206,7 @@ class _LoggedInPageWidgetState extends State<LoggedInPageWidget> {
                                       fadeOutDuration:
                                           Duration(milliseconds: 300),
                                       imageUrl: valueOrDefault<String>(
-                                        gridViewProdutosRecord.imageurl,
+                                        gridViewProdutosRecord.imageUrl,
                                         'https://via.placeholder.com/300x200.png?text=Sem+imagem',
                                       ),
                                       width: double.infinity,
@@ -217,7 +219,7 @@ class _LoggedInPageWidgetState extends State<LoggedInPageWidget> {
                                         0.0, 8.0, 0.0, 4.0),
                                     child: Text(
                                       valueOrDefault<String>(
-                                        gridViewProdutosRecord.nome,
+                                        gridViewProdutosRecord.title,
                                         'Produto sem nome',
                                       ),
                                       maxLines: 2,
@@ -279,7 +281,7 @@ class _LoggedInPageWidgetState extends State<LoggedInPageWidget> {
                                   ),
                                   FFButtonWidget(
                                     onPressed: () async {
-                                      final url = gridViewProdutosRecord.linkdoProduto;
+                                      final url = gridViewProdutosRecord.productUrl;
                                       if (url.isNotEmpty) {
                                         await launchURL(url);
                                       }

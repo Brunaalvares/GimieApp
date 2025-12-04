@@ -11,49 +11,72 @@ const _kPrivateApiFunctionName = 'ffPrivateApiCall';
 
 class SalvarLinkCall {
   static Future<ApiCallResponse> call({
-    String? productUrl = 'urlaqui[link]',
+    required String productUrl,
   }) async {
-    final ffApiRequestBody = '''
-{
-  "url": "{{productUrl}}"
-}''';
+    final sanitizedUrl = productUrl.trim();
+    final ffApiRequestBody = json.encode({'url': sanitizedUrl});
     return ApiManager.instance.makeApiCall(
       callName: 'salvar link',
       apiUrl: 'https://gimieapi.onrender.com/links',
       callType: ApiCallType.POST,
-      headers: {},
-      params: {},
+      headers: const {
+        'Content-Type': 'application/json',
+      },
+      params: const {},
       body: ffApiRequestBody,
       bodyType: BodyType.JSON,
       returnBody: true,
-      encodeBodyUtf8: false,
-      decodeUtf8: false,
+      encodeBodyUtf8: true,
+      decodeUtf8: true,
       cache: false,
       isStreamingApi: false,
       alwaysAllowBody: false,
     );
   }
 
-  static dynamic name(dynamic response) => getJsonField(
-        response,
-        r'''$''',
-      );
-  static String? nome(dynamic response) => castToType<String>(getJsonField(
-        response,
-        r'''$[:].nome''',
-      ));
-  static String? price(dynamic response) => castToType<String>(getJsonField(
-        response,
-        r'''$[:].preco''',
-      ));
-  static String? imagem(dynamic response) => castToType<String>(getJsonField(
-        response,
-        r'''$[:].imagem''',
-      ));
-  static String? url(dynamic response) => castToType<String>(getJsonField(
-        response,
-        r'''$[:].url''',
-      ));
+  static Map<String, dynamic>? _entity(dynamic response) {
+    if (response is List && response.isNotEmpty) {
+      final first = response.first;
+      if (first is Map<String, dynamic>) {
+        return first;
+      }
+    }
+    if (response is Map<String, dynamic>) {
+      return response;
+    }
+    return null;
+  }
+
+  static String? title(dynamic response) {
+    final entity = _entity(response);
+    return castToType<String>(
+          entity?['title'],
+        ) ??
+        castToType<String>(entity?['nome']);
+  }
+
+  static String? price(dynamic response) {
+    final entity = _entity(response);
+    final value = entity?['price'] ?? entity?['preco'];
+    return value?.toString();
+  }
+
+  static String? image(dynamic response) {
+    final entity = _entity(response);
+    return castToType<String>(
+          entity?['imageUrl'],
+        ) ??
+        castToType<String>(entity?['image']) ??
+        castToType<String>(entity?['imagem']);
+  }
+
+  static String? productUrl(dynamic response) {
+    final entity = _entity(response);
+    return castToType<String>(
+          entity?['productUrl'],
+        ) ??
+        castToType<String>(entity?['url']);
+  }
 }
 
 class SalvarNaListaCall {

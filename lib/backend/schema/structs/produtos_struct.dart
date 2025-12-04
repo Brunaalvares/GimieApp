@@ -8,30 +8,36 @@ import '/flutter_flow/flutter_flow_util.dart';
 
 class ProdutosStruct extends FFFirebaseStruct {
   ProdutosStruct({
-    String? nome,
-    String? imageurl,
+    String? title,
+    String? imageUrl,
     double? price,
-    String? linkdoProduto,
+    String? productUrl,
     FirestoreUtilData firestoreUtilData = const FirestoreUtilData(),
-  })  : _nome = nome,
-        _imageurl = imageurl,
+  })  : _title = title,
+        _imageUrl = imageUrl,
         _price = price,
-        _linkdoProduto = linkdoProduto,
+        _productUrl = productUrl,
         super(firestoreUtilData);
 
-  // "nome" field.
-  String? _nome;
-  String get nome => _nome ?? '';
-  set nome(String? val) => _nome = val;
+  // "title" field.
+  String? _title;
+  String get title => _title ?? '';
+  set title(String? val) => _title = val;
+  String get nome => title;
+  set nome(String? val) => title = val;
 
-  bool hasNome() => _nome != null;
+  bool hasTitle() => _title != null;
+  bool hasNome() => hasTitle();
 
-  // "imageurl" field.
-  String? _imageurl;
-  String get imageurl => _imageurl ?? '';
-  set imageurl(String? val) => _imageurl = val;
+  // "imageUrl" field.
+  String? _imageUrl;
+  String get imageUrl => _imageUrl ?? '';
+  set imageUrl(String? val) => _imageUrl = val;
+  String get imageurl => imageUrl;
+  set imageurl(String? val) => imageUrl = val;
 
-  bool hasImageurl() => _imageurl != null;
+  bool hasImageUrl() => _imageUrl != null;
+  bool hasImageurl() => hasImageUrl();
 
   // "price" field.
   double? _price;
@@ -42,59 +48,62 @@ class ProdutosStruct extends FFFirebaseStruct {
 
   bool hasPrice() => _price != null;
 
-  // "linkdoProduto" field.
-  String? _linkdoProduto;
-  String get linkdoProduto => _linkdoProduto ?? '';
-  set linkdoProduto(String? val) => _linkdoProduto = val;
+  // "productUrl" field.
+  String? _productUrl;
+  String get productUrl => _productUrl ?? '';
+  set productUrl(String? val) => _productUrl = val;
+  String get linkdoProduto => productUrl;
+  set linkdoProduto(String? val) => productUrl = val;
 
-  bool hasLinkdoProduto() => _linkdoProduto != null;
+  bool hasProductUrl() => _productUrl != null;
+  bool hasLinkdoProduto() => hasProductUrl();
 
   static ProdutosStruct fromMap(Map<String, dynamic> data) => ProdutosStruct(
-        nome: data['nome'] as String?,
-        imageurl: data['imageurl'] as String?,
+        title: data['title'] as String?,
+        imageUrl: data['imageUrl'] as String?,
         price: castToType<double>(data['price']),
-        linkdoProduto: data['linkdoProduto'] as String?,
+        productUrl: data['productUrl'] as String?,
       );
 
   static ProdutosStruct? maybeFromMap(dynamic data) =>
       data is Map ? ProdutosStruct.fromMap(data.cast<String, dynamic>()) : null;
 
   Map<String, dynamic> toMap() => {
-        'nome': _nome,
-        'imageurl': _imageurl,
+        'title': _title,
+        'imageUrl': _imageUrl,
         'price': _price,
-        'linkdoProduto': _linkdoProduto,
+        'productUrl': _productUrl,
       }.withoutNulls;
 
   @override
   Map<String, dynamic> toSerializableMap() => {
-        'nome': serializeParam(
-          _nome,
+        'title': serializeParam(
+          _title,
           ParamType.String,
         ),
-        'imageurl': serializeParam(
-          _imageurl,
+        'imageUrl': serializeParam(
+          _imageUrl,
           ParamType.String,
         ),
         'price': serializeParam(
           _price,
           ParamType.double,
         ),
-        'linkdoProduto': serializeParam(
-          _linkdoProduto,
+        'productUrl': serializeParam(
+          _productUrl,
           ParamType.String,
         ),
       }.withoutNulls;
 
   static ProdutosStruct fromSerializableMap(Map<String, dynamic> data) =>
       ProdutosStruct(
-        nome: deserializeParam(
-          data['nome'],
+        title: deserializeParam(
+          data['title'],
           ParamType.String,
           false,
         ),
-        imageurl: deserializeParam(
-          data['imageurl'],
+        imageUrl: deserializeParam(
+          data['imageUrl'],
           ParamType.String,
           false,
         ),
@@ -103,8 +112,8 @@ class ProdutosStruct extends FFFirebaseStruct {
           ParamType.double,
           false,
         ),
-        linkdoProduto: deserializeParam(
-          data['linkdoProduto'],
+        productUrl: deserializeParam(
+          data['productUrl'],
           ParamType.String,
           false,
         ),
@@ -116,32 +125,32 @@ class ProdutosStruct extends FFFirebaseStruct {
   @override
   bool operator ==(Object other) {
     return other is ProdutosStruct &&
-        nome == other.nome &&
-        imageurl == other.imageurl &&
+        title == other.title &&
+        imageUrl == other.imageUrl &&
         price == other.price &&
-        linkdoProduto == other.linkdoProduto;
+        productUrl == other.productUrl;
   }
 
   @override
   int get hashCode =>
-      const ListEquality().hash([nome, imageurl, price, linkdoProduto]);
+      const ListEquality().hash([title, imageUrl, price, productUrl]);
 }
 
 ProdutosStruct createProdutosStruct({
-  String? nome,
-  String? imageurl,
+  String? title,
+  String? imageUrl,
   double? price,
-  String? linkdoProduto,
+  String? productUrl,
   Map<String, dynamic> fieldValues = const {},
   bool clearUnsetFields = true,
   bool create = false,
   bool delete = false,
 }) =>
     ProdutosStruct(
-      nome: nome,
-      imageurl: imageurl,
+      title: title,
+      imageUrl: imageUrl,
       price: price,
-      linkdoProduto: linkdoProduto,
+      productUrl: productUrl,
       firestoreUtilData: FirestoreUtilData(
         clearUnsetFields: clearUnsetFields,
         create: create,
