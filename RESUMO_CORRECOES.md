@@ -182,3 +182,19 @@ O app agora está preparado para:
 **Todas as correções de código do lado do app foram implementadas com sucesso!**
 
 O único item pendente é a implementação do endpoint POST no backend da API, para o qual foi fornecido um exemplo completo de código.
+
+---
+
+## 🐛 Bug Fix Adicional (Compilação)
+
+### Erro: currentUserUid Undefined
+**Problema**: `add_link_widget.dart` usava `currentUserUid` sem o import necessário.
+
+**Solução**: Adicionado import:
+```dart
+import '/auth/firebase_auth/auth_util.dart';
+```
+
+**Arquivo Corrigido**: `lib/components/add_link_widget.dart` (linha 1)
+
+Ver detalhes em: [BUG_FIX_currentUserUid.md](BUG_FIX_currentUserUid.md)
