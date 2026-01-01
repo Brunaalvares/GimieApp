@@ -20,7 +20,7 @@ class FFAppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  String _link = 'urlaqui[link]';
+  String _link = '';
   String get link => _link;
   set link(String value) {
     _link = value;

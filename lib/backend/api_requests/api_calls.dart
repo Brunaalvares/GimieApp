@@ -11,8 +11,9 @@ const _kPrivateApiFunctionName = 'ffPrivateApiCall';
 
 class SalvarLinkCall {
   static Future<ApiCallResponse> call({
-    String? productUrl = 'urlaqui[link]',
+    String? productUrl = '',
   }) async {
+    // Try POST first (when API is ready)
     final ffApiRequestBody = '''
 {
   "url": "${escapeStringForJson(productUrl)}"
@@ -25,6 +26,27 @@ class SalvarLinkCall {
       params: {},
       body: ffApiRequestBody,
       bodyType: BodyType.JSON,
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+  
+  // Fallback GET method (for testing or when POST is not available)
+  static Future<ApiCallResponse> callGet({
+    String? productUrl = '',
+  }) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'salvar link GET',
+      apiUrl: 'https://gimieapi.onrender.com/links',
+      callType: ApiCallType.GET,
+      headers: {},
+      params: productUrl != null && productUrl.isNotEmpty
+          ? {'url': productUrl}
+          : {},
       returnBody: true,
       encodeBodyUtf8: false,
       decodeUtf8: false,
