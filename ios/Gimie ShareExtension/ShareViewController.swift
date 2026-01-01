@@ -5,7 +5,7 @@
 //  Created by Luiza Silva on 30/07/25.
 //
 
-import Cocoa
+import UIKit
 import Social
 
 
@@ -53,16 +53,38 @@ class ShareViewController: SLComposeServiceViewController {
                 if attachment.hasItemConformingToTypeIdentifier("public.url") {
                     attachment.loadItem(forTypeIdentifier: "public.url", options: nil) { (data, error) in
                         if let url = data as? URL {
-                            // Aqui você salva no UserDefaults (App Group) ou envia para o app
-                            let defaults = UserDefaults(suiteName: "group.com.suaempresa.seuprojeto")
+                            // Use the correct App Group for Gimie app
+                            let defaults = UserDefaults(suiteName: "group.com.mycompany.gimieapp")
                             defaults?.set(url.absoluteString, forKey: "sharedURL")
                             defaults?.synchronize()
+                            
+                            // Open the main app with the deep link
+                            self.openMainApp(url: url.absoluteString)
                         }
                     }
                 }
             }
         }
         extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
+    }
+    
+    private func openMainApp(url: String) {
+        let encodedUrl = url.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        if let deepLinkURL = URL(string: "gimieapp://gimie.tech?url=\(encodedUrl)") {
+            var responder: UIResponder? = self as UIResponder
+            let selector = #selector(openURL(_:))
+            while responder != nil {
+                if responder!.responds(to: selector) && responder != self {
+                    responder!.perform(selector, with: deepLinkURL, afterDelay: 0)
+                    break
+                }
+                responder = responder?.next
+            }
+        }
+    }
+    
+    @objc private func openURL(_ url: URL) {
+        // This method will be called through the responder chain
     }
 }
 
