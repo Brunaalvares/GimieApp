@@ -105,7 +105,8 @@ Future<int> queryCollectionCount(
 
   return query.count().get().catchError((err) {
     print('Error querying $collection: $err');
-  }).then((value) => value.count!);
+    return AggregateQuerySnapshot(0, AggregateSource.server);
+  }).then((value) => value.count ?? 0);
 }
 
 Stream<List<T>> queryCollection<T>(

@@ -101,14 +101,14 @@ class _MyAppState extends State<MyApp> {
     ReceiveSharingIntent.instance.getInitialMedia().then(_handleSharedFiles);
     
     // Listen for shared text (URLs shared as text)
-    _textStreamSubscription = ReceiveSharingIntent.instance.getTextStream()
+    _textStreamSubscription = ReceiveSharingIntent.instance.getTextStreamAsString()
         .listen(_handleSharedText, onError: (err) {
       debugPrint("Error receiving shared text: $err");
     });
     
     // Get initial shared text
-    ReceiveSharingIntent.instance.getInitialText().then((value) {
-      if (value != null) {
+    ReceiveSharingIntent.instance.getInitialTextAsString().then((value) {
+      if (value != null && value.isNotEmpty) {
         _handleSharedText(value);
       }
     });
@@ -291,7 +291,7 @@ class _NavBarPageState extends State<NavBarPage> {
           ),
           BottomNavigationBarItem(
             icon: FaIcon(
-              FontAwesomeIcons.search,
+              FontAwesomeIcons.magnifyingGlass,
               size: 24.0,
             ),
             label: FFLocalizations.of(context).getText(
