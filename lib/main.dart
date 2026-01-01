@@ -53,6 +53,7 @@ class _MyAppState extends State<MyApp> {
   late AppLinks _appLinks;
   StreamSubscription<Uri>? _linkSubscription;
   StreamSubscription<List<SharedMediaFile>>? _intentDataStreamSubscription;
+  StreamSubscription<String>? _textStreamSubscription;
   
   String getRoute([RouteMatch? routeMatch]) {
     final RouteMatch lastMatch =
@@ -100,12 +101,17 @@ class _MyAppState extends State<MyApp> {
     ReceiveSharingIntent.instance.getInitialMedia().then(_handleSharedFiles);
     
     // Listen for shared text (URLs shared as text)
-    ReceiveSharingIntent.instance.getTextStream().listen(_handleSharedText, onError: (err) {
+    _textStreamSubscription = ReceiveSharingIntent.instance.getTextStream()
+        .listen(_handleSharedText, onError: (err) {
       debugPrint("Error receiving shared text: $err");
     });
     
     // Get initial shared text
-    ReceiveSharingIntent.instance.getInitialText().then(_handleSharedText);
+    ReceiveSharingIntent.instance.getInitialText().then((value) {
+      if (value != null) {
+        _handleSharedText(value);
+      }
+    });
   }
   
   void _initDeepLinks() async {
@@ -175,6 +181,7 @@ class _MyAppState extends State<MyApp> {
     authUserSub.cancel();
     _linkSubscription?.cancel();
     _intentDataStreamSubscription?.cancel();
+    _textStreamSubscription?.cancel();
 
     super.dispose();
   }
