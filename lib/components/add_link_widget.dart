@@ -192,7 +192,6 @@ class _AddLinkWidgetState extends State<AddLinkWidget> {
                         ),
                       );
                     }
-                    final buttonSalvarLinkResponse = snapshot.data; // unused
 
                     return FFButtonWidget(
                       onPressed: () async {
